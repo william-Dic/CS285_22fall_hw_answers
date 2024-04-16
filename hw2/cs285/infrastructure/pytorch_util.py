@@ -2,7 +2,7 @@ from typing import Union
 
 import torch
 from torch import nn
-
+import numpy as np
 Activation = Union[str, nn.Module]
 
 
@@ -78,6 +78,10 @@ def set_device(gpu_id):
 def from_numpy(*args, **kwargs):
     return torch.from_numpy(*args, **kwargs).float().to(device)
 
-
 def to_numpy(tensor):
-    return tensor.to('cpu').detach().numpy()
+    if isinstance(tensor, np.ndarray):
+        return tensor  # 如果已经是 NumPy 数组，直接返回
+    elif torch.is_tensor(tensor):
+        return tensor.to('cpu').detach().numpy()  # 如果是 PyTorch 张量，转换为 NumPy 数组
+    else:
+        raise TypeError("输入必须是 PyTorch 张量或 NumPy 数组")

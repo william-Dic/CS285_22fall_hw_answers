@@ -54,31 +54,101 @@ def mean_squared_error(a, b):
 ############################################
 ############################################
 
-def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('rgb_array')):
-    # TODO: get this from hw1
+def sample_trajectory(env, policy, max_path_length, render=False):
 
-def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False, render_mode=('rgb_array')):
-    # TODO: get this from hw1
+    # initialize env for the beginning of a new rollout
+    ob = env.reset() # HINT: should be the output of resetting the env
 
-def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False, render_mode=('rgb_array')):
-    # TODO: get this from hw1
+    # init vars
+    obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
+    steps = 0
+    while True:
 
+        # render image of the simulated env
+        if render:
+            if hasattr(env, 'sim'):
+                image_obs.append(env.sim.render(camera_name='track', height=500, width=500)[::-1])
+            else:
+                image_obs.append(env.render())
+
+        # use the most recent ob to decide what to do
+        obs.append(ob)
+        ac = policy.get_action(ob) # HINT: query the policy's get_action function
+        ac = ac[0]
+        acs.append(ac)
+
+        # take that action and record results
+        ob, rew, done, _ = env.step(ac)
+
+        # record result of taking that action
+        steps += 1
+        next_obs.append(ob)
+        rewards.append(rew)
+
+        # TODO end the rollout if the rollout ended
+        # HINT: rollout can end due to done, or due to max_path_length
+        rollout_done = done or (steps >= max_path_length) # HINT: this is either 0 or 1
+        terminals.append(rollout_done)
+
+        if rollout_done:
+            break
+
+    return Path(obs, image_obs, acs, rewards, next_obs, terminals)
+
+def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False):
+    """
+        Collect rollouts until we have collected min_timesteps_per_batch steps.
+
+        TODO implement this function
+        Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
+        Hint2: use get_pathlength to count the timesteps collected in each path
+    """
+    timesteps_this_batch = 0
+    paths = []
+    while timesteps_this_batch < min_timesteps_per_batch:
+
+        paths.append(sample_trajectory(env,policy,max_path_length,render))
+        timesteps_this_batch += get_pathlength(paths[-1])
+    return paths, timesteps_this_batch
+
+def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False):
+    """
+        Collect ntraj rollouts.
+
+        TODO implement this function
+        Hint1: use sample_trajectory to get each path (i.e. rollout) that goes into paths
+    """
+    paths = []
+
+    for i in range(ntraj):
+      paths.append(sample_trajectory(env,policy,max_path_length,render))
+
+    return paths
 ############################################
 ############################################
 
 def Path(obs, image_obs, acs, rewards, next_obs, terminals):
     """
-        Take info (separate arrays) from a single rollout
-        and return it in a single dictionary
+    Take info (separate arrays) from a single rollout
+    and return it in a single dictionary.
+    Replace None in image_obs with an array of zeros of expected shape.
     """
     if image_obs != []:
-        image_obs = np.stack(image_obs, axis=0)
-    return {"observation" : np.array(obs, dtype=np.float32),
-            "image_obs" : np.array(image_obs, dtype=np.uint8),
-            "reward" : np.array(rewards, dtype=np.float32),
-            "action" : np.array(acs, dtype=np.float32),
+        processed_image_obs = []
+        for img in image_obs:
+            if img is None:
+                # Assuming your images are 500x500 pixels. Adjust the size as necessary.
+                img = np.zeros((500, 500), dtype=np.uint8)
+            processed_image_obs.append(img)
+        image_obs = np.stack(processed_image_obs, axis=0)
+
+    return {"observation": np.array(obs, dtype=np.float32),
+            "image_obs": np.array(image_obs, dtype=np.uint8),
+            "reward": np.array(rewards, dtype=np.float32),
+            "action": np.array(acs, dtype=np.float32),
             "next_observation": np.array(next_obs, dtype=np.float32),
             "terminal": np.array(terminals, dtype=np.float32)}
+
 
 
 def convert_listofrollouts(paths):

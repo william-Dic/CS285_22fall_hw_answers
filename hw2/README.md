@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Setup
 
 You can run this code on your own machine or on Google Colab.
@@ -24,3 +25,7 @@ You will then need to complete the following new files for homework 2. The relev
 You will also want to look through [scripts/run_hw2.py](cs285/scripts/run_hw2.py) (if running locally) or [scripts/run_hw2.ipynb](cs285/scripts/run_hw2.ipynb) (if running on Colab), though you will not need to edit this files beyond changing runtime arguments in the Colab notebook.
 
 You will be running your policy gradients implementation in five experiments total, investigating the effects of design decisions like reward-to-go estimators, neural network baselines and generalized advantage estimation for variance reduction, and advantage normalization. See the [assignment PDF](cs285_hw2.pdf) for more details.
+=======
+# CS285_22fall_hws
+CS285_22fall_hws
+>>>>>>> 7632bd2f7ad2166af7848783055e7c9343d52444

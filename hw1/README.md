@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Setup
 
 You can run this code on your own machine or on Google Colab. 
@@ -75,3 +76,7 @@ tensorboard --logdir data/run1,data/run2,data/run3...
 
 If running on Colab, you will be using the `%tensorboard` [line magic](https://ipython.readthedocs.io/en/stable/interactive/magics.html) to do the same thing; see the [notebook](cs285/scripts/run_hw1.ipynb) for more details.
 
+=======
+# CS285_22fall_hws
+CS285_22fall_hws
+>>>>>>> 7632bd2f7ad2166af7848783055e7c9343d52444
